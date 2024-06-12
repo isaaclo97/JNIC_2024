@@ -23,6 +23,7 @@ Enlace JNIC: https://2024.jnic.es/capture-the-flag/
 
 
 En este Reto nos encontramos 6 ficheros diferentes que no parecen tener ninguna extensión concreta:
+
 ![2](./imgs/2.pgn)
 
 Si ejecutamos el comando file sobre todos los ficheros observamos que hay, al menos, un fichero zip y un fichero JPEG.
@@ -45,12 +46,15 @@ Sin embargo, lanzando el comando strings sobre la imagen, obtenemos una cadena s
 
 ![7](./imgs/7.pgn)
 ![8](./imgs/8.pgn)
+
 (Se ha omitido parte de la salida del comando strings para no aumentar la longitud del documento en exceso).
 
 En este momento, dado que no hemos utilizado la imagen reconstruida para nada hasta el momento, podemos pensar que tiene algún tipo de información oculta mediante técnicas de esteganografía. Al haber obtenido una contraseña, la primera intuición es utilizar steghide para intentar extraer el contenido.
+
 ![9](./imgs/9.pgn)
 
 El comando tiene éxito y obtenemos un fichero llamado flag.txt. Sin embargo, a la hora de consultar su contenido, la flag no parece encontrarse dentro:
+
 ![10](./imgs/10.pgn)
 
 Sin embargo, tenemos varias pistas que nos llevan a pensar que hay información oculta también en este fichero:
@@ -65,9 +69,11 @@ Por lo tanto, aplicamos la herramienta stegsnow sobre el fichero flag.txt, obten
 # Reto 2 - 👩🏼‍💻 Javascript
 
 En este reto tenemos una función Javascript con el siguiente código:
+
 ![12](./imgs/12.pgn)
 
 Bien formateado, el código es el siguiente:
+
 ![13](./imgs/13.pgn)
 
 Para resolver el reto, necesitamos darle un argumento a la función algo que se parezca a un array, que tenga la secuencia de caracteres dentro "expo92", pero cuya longitud sea menor a 1. La función además comprueba el prototipo del objeto para ver si es un Array, por lo que parece imposible a priori.
@@ -94,6 +100,7 @@ fakearray.__proto__ = Array.prototype
 ```
 
 Si camina como un pato, y habla como un pato... Obtenemos la flag:
+
 ![14](./imgs/14.pgn)
 
 ![15](./imgs/15.pgn)
@@ -117,12 +124,15 @@ Buscando strings interesantes, hemos encontrado el String "Has ganado! aqui esta
 ![16](./imgs/16.pgn)
 
 Por lo que inmediatamente vamos a ver donde se usa ese string.
+
 ![17](./imgs/17.pgn)
 
 El decompilado no es demasiado útil, es muy difícil de entender y no se aprecia la funcionalidad. En el desensamblado, podemos observar que hace una comparación, y luego un branch, en las posiciones de memoria `20014c4-cc`
+
 ![18](./imgs/18.pgn)
 
 Con el emulador, comprobamos que al poner un breakpoint en esta posición de memoria, se para al comprobar si la secuencia introducida es correcta, por lo que parece la comprobación que valida si hemos acertado el código. Probamos simplemente a cambiar el compare equals (`cmpeq`, en `020014c8`) por compare not equals (`cmpne`). Reensamblamos y vemos que los bytes que cambian son los siguientes:
+
 ![19](./imgs/19.pgn)
 
 Es decir, tenemos que buscar
@@ -136,9 +146,11 @@ y reemplazarlo por:
 - 020014cc e5 ff ff 1a     bne        LAB_02001468
 ```
 Lo cual haremos con Cheat Engine:
+
 ![20](./imgs/20.pgn)
 
 Y con esto obtenemos la flag enviando cualquier entrada.
+
 ![21](./imgs/21.pgn)
 
 ```flag{la_b4nda_3n_c4n41_sur}```
